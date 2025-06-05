@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Menu UI Layout: Burger Snipe</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="./css/order.css">
+</head>
+
+
+<body class="p-6">
+
+  
+  <div class="flex gap-6">
+
+    <!-- Menu -->
+    <div class="w-3/4 border border-gray-300 rounded-lg p-6 max-h-screen overflow-y-auto">
+      <h2 class="text-xl font-bold mb-4" style="font-size: 35px;">Menu: Burger Snipe</h2>
+      <input type="text" id="search" placeholder="Search menu..." class="mb-4 p-2 border border-gray-300 rounded w-full">
+      <div class="grid grid-cols-4 gap-6" id="menu"></div>
+    </div>
+
+    <!-- Order Details -->
+    <div class="w-1/4 border border-gray-300 rounded-lg flex flex-col max-h-screen overflow-y-auto">
+      <div>
+        <h3 class="text-xl font-bold border-b p-5 mb-12" style="font-size: 35px;">Ordered Items</h3>
+        <div id="orders" class="p-5"></div>
+      </div>
+      <div class="mt-6 pt-4 border-t border-gray-300 w-full p-5">
+        <p id="total" class="font-bold mb-2" style="font-size: 35px;">Total: 0 PHP</p>
+        <input id="payment" type="number" placeholder="Enter the amount here" class="w-full mb-2 p-2 border border-gray-300 rounded">
+        <div style="text-align: right;">
+          <button onclick="payOrder()" class="bg-green-500 text-white py-2 px-4 rounded w-30 font-bold">Pay!</button>
+        </div>        
+      </div>
+    </div>
+    
+  </div>
+
+  <!-- Variable for name, price, and image of the menu items -->
+  <script>
+    const items = [
+      { name: 'Cheese Burger', price: 259, image: 'resources/cheeseburger.png' },
+      { name: 'Truffle Burger', price: 289, image: 'resources/truffle-burger.png' },
+      { name: 'Black Bean Burger', price: 279, image: 'resources/black-bean-burger.png' },
+      { name: 'Bacon Burger', price: 239, image: 'resources/bacon burger.png' },
+      { name: 'Wagyu Beef Burger', price: 269, image: 'resources/wagyu beef burger.png' },
+      { name: 'Mushroom Melt Burger', price: 219, image: 'resources/mushroom melt.png' },
+      { name: 'Double Patty Burger', price: 309, image: 'resources/double patty.png' },
+      { name: 'Brie Bliss Burger', price: 329, image: 'resources/brie bliss burger.png' },
+      { name: 'Lentil Patty Burger', price: 229, image: 'resources/lentil patty.png' }
+    ];
+
+    const menu = document.getElementById('menu');
+    const searchInput = document.getElementById('search');
+    const orders = {};
+
+    /* Creating menu items by iterating each items */
+    function displayMenuDetails(filteredBurgerItems = items) {
+      menu.innerHTML = '';
+      filteredBurgerItems.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'border border-black-300 rounded-lg p-4 text-center';
+        div.innerHTML = `
+          <div class="flex justify-center items-center h-[150px] overflow-hidden mb-2">
+            <img src="${item.image}" alt="${item.name}" class="h-full object-cover rounded-md">
+          </div>
+          <h3 class="text-lg font-bold mt-2">${item.name}</h3>
+          <p class="text-gray-700">${item.price} PHP</p>
+          <input type="number" min="1" class="qty w-full mt-2 p-1 border border-gray-300 rounded" placeholder="Enter how many?">
+          <button class="add bg-orange-500 text-white mt-2 py-1 rounded font-bold" style="width: 120px; height: 40px; float: right;">Add to order</button>
+        `;
+
+        div.querySelector('.add').addEventListener('click', () => {
+          const qty = parseInt(div.querySelector('.qty').value);
+          if (!qty || qty < 1) return;
+
+          if (!orders[item.name]) {
+            orders[item.name] = 0;
+          }
+          orders[item.name] += qty;
+          displayOrderDetails();
+        });
+
+        menu.appendChild(div);
+      });
+    }
+
+    /* Search method */
+    searchInput.addEventListener('input', () => {
+      const query = searchInput.value.toLowerCase();
+      const filtered = items.filter(item => item.name.toLowerCase().startsWith(query));
+      displayMenuDetails(filtered);
+    });
+
+    /* Creating order items by iterating each order */
+    function displayOrderDetails() {
+      const ordersDiv = document.getElementById('orders');
+      const totalDiv = document.getElementById('total');
+      ordersDiv.innerHTML = '';
+      let total = 0;
+
+      for (const [name, qty] of Object.entries(orders)) {
+        const item = items.find(i => i.name === name);
+        total += qty * item.price;
+
+        const div = document.createElement('div');
+        div.className = 'border border-gray-300 rounded-md p-4 mb-4';
+        div.innerHTML = `
+
+          <h2 style="font-size: 30px;">${name}</h2>
+          <div class="flex justify-end">
+            <p class="text-green-600" style="font-size: 30px;">Qty: ${qty}</p>
+          </div>
+        `;
+        ordersDiv.appendChild(div);
+      }
+
+      totalDiv.textContent = `Total: ${total} PHP`;
+    }
+
+    /* Pay method: Displaying the money paid, change, and total cost of order items */
+    function payOrder() {
+      const payment = parseFloat(document.getElementById('payment').value);
+      const total = Object.entries(orders).reduce((sum, [name, qty]) => {
+        const item = items.find(i => i.name === name);
+        return sum + qty * item.price;
+      }, 0);
+
+      if (payment >= total) {
+        const change = payment - total;
+        alert(`Thanks for ordering! Here's your ${change} pesos change`);
+      } else {
+        alert('Not enough balance. Please try again');
+      }
+    }
+
+    /* Calling of displayMenuDetails method */
+    displayMenuDetails();
+  </script>
+</body>
+</html>
