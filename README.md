@@ -66,7 +66,3 @@ The order page currently includes:
 - Lentil Patty Burger — ₱229
 
 Items and prices are defined as a plain JavaScript array (`items`) directly in `order.html`, so they're easy to edit without touching any other files.
-
-## License
-
-No license specified. Add a `LICENSE` file if you'd like to define usage terms.
